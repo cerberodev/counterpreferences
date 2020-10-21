@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -58,17 +59,28 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+        child: FutureBuilder(
+          future: _counter,
+          builder: (_, AsyncSnapshot<int> snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return const CupertinoActivityIndicator();
+              default:
+                if (snapshot.hasError) {
+                  return AlertDialog(
+                    title: Text('Error: ${snapshot.error}'),
+                  );
+                } else {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                          'Button tapped ${snapshot.data} time${snapshot.data == 1 ? '' : 's'}.'),
+                    ],
+                  );
+                }
+            }
+          },
         ),
       ),
       floatingActionButton: FloatingActionButton(
